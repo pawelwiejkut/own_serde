@@ -1,0 +1,5 @@
+2017-05-17 18:43:15,744 TRACE f4f9c323-cfbb-4b98-837a-8132c7d53e33  registry-ear-0.9.0-SNAPSHOT [com.hartter.bpc.core.context.ThreadLocalContextHolder] (default task-1) Context update: ORIGIN : UI
+2017-05-17 18:43:15,744 TRACE f4f9c323-cfbb-4b98-837a-8132c7d53e33  registry-ear-0.9.0-SNAPSHOT [com.hartter.bpc.core.context.ThreadLocalContextHolder] (default task-1) Context update: LANGUAGE : de
+2017-05-17 18:43:15,744 TRACE f4f9c323-cfbb-4b98-837a-8132c7d53e33  registry-ear-0.9.0-SNAPSHOT [com.hartter.bpc.core.context.ThreadLocalContextHolder] (default task-1) Context update: CHANNEL : BRANCH
+2017-05-17 18:43:15,744 TRACE f4f9c323-cfbb-4b98-837a-8132c7d53e33  registry-ear-0.9.0-SNAPSHOT [com.hartter.bpc.core.rest.filter.UserContextFilter] (default task-1) Remote host: 10.12.70.141, address: 10.12.70.141
+2017-05-17 18:43:15,744 TRACE f4f9c323-cfbb-4b98-837a-8132c7d53e33  registry-ear-0.9.0-SNAPSHOT [com.hartter.bpc.core.context.ThreadLocalContextHolder] (default task-1) Context update: CLIENT : 10.12.70.141

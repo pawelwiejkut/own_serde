@@ -4,6 +4,8 @@ import static org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector.Cate
 import static org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector.PrimitiveCategory.STRING;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.serde2.SerDe;
@@ -90,21 +92,77 @@ public class ColumnarMapSerDe implements SerDe {
     rowMap.clear();
     rowFields.clear();
 
+    String date;
+    String timeStamp;
+    String entryType;
+    String guid;
+    String username;
+    String servicearchive;
+    String logger ="";
+    String procthread ="";
+    String tag;
+    String duration ="";
+    String info;
+
     String content = text.toString();
-    deserializedByteCount += text.getBytes().length;
-    String[] pairs = content.split("\001");
-    for (String pair : pairs) {
-      int delimiterIndex = pair.indexOf('\002');
-      if (delimiterIndex >= 0) {
-        String key = pair.substring(0, delimiterIndex);
-        String value = pair.substring(delimiterIndex + 1);
-        rowMap.put(key, value);
-      }
+    String[] space = content.split("\\s");
+
+    date = space[0];
+    timeStamp = space[1];
+    entryType = space[2];
+    guid = space[3];
+    username = space[4];
+    servicearchive = space[5];
+
+    Matcher m2 = Pattern.compile("\\[(.*?)\\]").matcher(content);
+    if (m2.find()) {
+      logger = m2.group(1);
+      System.out.println(m2.group(1));
     }
 
-    for (String columnName : columnNames) {
-      rowFields.add(rowMap.get(columnName));
+    Matcher m = Pattern.compile("\\(([^)]+)\\)").matcher(content);
+    if (m.find()) {
+      procthread = m.group(1);
+      System.out.println( m.group(1));
     }
+
+    String[] bsplit = content.split("\\)");
+    tag = bsplit[1].split("\\s")[1];
+    if (tag.equals("ENTER") || tag.equals("EXIT")){}
+    else tag = "";
+
+    int length = (bsplit[1].split("\\s")).length;
+    if ( length > 2) {
+      duration = bsplit[1].split("\\s")[2];
+      if (duration.contains("after")) {
+        duration = bsplit[1].split("\\s")[3];
+      } else duration = "";
+    }
+
+    if (tag.equals("") && duration.equals("")){
+      info = content.substring(content.indexOf(bsplit[1]), content.length());
+    }else if (tag.equals("") && length >2) {
+      info = content.substring(content.indexOf(bsplit[1].split("\\s")[2]), content.length());
+    }else if (tag.equals("") && length < 2) {
+      info = content.substring(content.indexOf(bsplit[1].split("\\s")[1]), content.length());
+    }
+    else if (duration.equals("")) {
+      info = content.substring(content.indexOf(bsplit[1].split("\\s")[3]), content.length());
+    }else{
+      info = content.substring(content.indexOf(bsplit[1].split("\\s")[4]), content.length());
+    }
+
+    rowFields.add(date);
+    rowFields.add(timeStamp);
+    rowFields.add(entryType);
+    rowFields.add(guid);
+    rowFields.add(username);
+    rowFields.add(servicearchive);
+    rowFields.add(logger);
+    rowFields.add(procthread);
+    rowFields.add(tag);
+    rowFields.add(duration);
+    rowFields.add(info);
 
     return rowFields;
   }

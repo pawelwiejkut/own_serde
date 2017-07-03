@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -21,9 +22,9 @@ public class MainTest {
 
 
 
-
-
     public static void deserialize (Text text)  {
+
+        List<String> rowFields =  new ArrayList<String>(10);
 
         String date;
         String timeStamp;
@@ -33,8 +34,8 @@ public class MainTest {
         String servicearchive;
         String logger ="";
         String procthread ="";
-        String tag;
-        String duration;
+        String tag ="";
+        String duration = "";
         String info;
 
         String content = text.toString();
@@ -64,30 +65,46 @@ public class MainTest {
         if (tag.equals("ENTER") || tag.equals("EXIT")){}
         else tag = "";
 
-        duration = bsplit[1].split("\\s")[2];
-        if (duration.contains("after")){
-            duration = bsplit[1].split("\\s")[3];
+        int length = (bsplit[1].split("\\s")).length;
+        if ( length > 2) {
+            duration = bsplit[1].split("\\s")[2];
+            if (duration.contains("after")) {
+                duration = bsplit[1].split("\\s")[3];
+            } else duration = "";
         }
-        else duration = "";
 
         if (tag.equals("") && duration.equals("")){
-            info = content.substring(content.indexOf(bsplit[1].split("\\s")[1]), content.length());
-        }else if (tag.equals("")) {
+            info = content.substring(content.indexOf(bsplit[1]), content.length());
+        }else if (tag.equals("") && length >2) {
             info = content.substring(content.indexOf(bsplit[1].split("\\s")[2]), content.length());
+        }else if (tag.equals("") && length < 2) {
+            info = content.substring(content.indexOf(bsplit[1].split("\\s")[1]), content.length());
         }
         else if (duration.equals("")) {
             info = content.substring(content.indexOf(bsplit[1].split("\\s")[3]), content.length());
         }else{
             info = content.substring(content.indexOf(bsplit[1].split("\\s")[4]), content.length());
         }
+        rowFields.add(date);
+        rowFields.add(timeStamp);
+        rowFields.add(entryType);
+        rowFields.add(guid);
+        rowFields.add(username);
+        rowFields.add(servicearchive);
+        rowFields.add(logger);
+        rowFields.add(procthread);
+        rowFields.add(tag);
+        rowFields.add(duration);
+        rowFields.add(info);
 
     }
+
 
 
     public static void main(String[] args) {
         BufferedReader br = null;
         try {
-            br = new BufferedReader(new FileReader("sources/ula"));
+            br = new BufferedReader(new FileReader("sources/test"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
