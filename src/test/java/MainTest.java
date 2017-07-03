@@ -10,6 +10,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by pawelwiejkut on 02.07.2017.
@@ -21,42 +23,71 @@ public class MainTest {
 
 
 
-    public static Object deserialize(Text text) throws SerDeException {
+    public static void deserialize (Text text)  {
 
-        List<String> columnNames = null;
-        ObjectInspector objectInspector;
-
-        Map<String, String> rowMap = null;
-        List<String> rowFields = null;
-
-        long deserializedByteCount = 0;
-        SerDeStats stats;
-
+        String date;
+        String timeStamp;
+        String entryType;
+        String guid;
+        String username;
+        String servicearchive;
+        String logger ="";
+        String procthread ="";
+        String tag;
+        String duration;
+        String info;
 
         String content = text.toString();
-        deserializedByteCount += text.getBytes().length;
-        String[] pairs = content.split("\001");
-        for (String pair : pairs) {
-            int delimiterIndex = pair.indexOf('\002');
-            if (delimiterIndex >= 0) {
-                String key = pair.substring(0, delimiterIndex);
-                String value = pair.substring(delimiterIndex + 1);
-                rowMap.put(key, value);
-            }
+        String[] space = content.split("\\s");
+
+        date = space[0];
+        timeStamp = space[1];
+        entryType = space[2];
+        guid = space[3];
+        username = space[4];
+        servicearchive = space[5];
+
+        Matcher m2 = Pattern.compile("\\[(.*?)\\]").matcher(content);
+         if (m2.find()) {
+          logger = m2.group(1);
+          System.out.println(m2.group(1));
         }
 
-//        for (String columnName : columnNames) {
-//            rowFields.add(rowMap.get(columnName));
-//        }
-//
-        return rowFields;
+        Matcher m = Pattern.compile("\\(([^)]+)\\)").matcher(content);
+        if (m.find()) {
+            procthread = m.group(1);
+            System.out.println( m.group(1));
+        }
+
+        String[] bsplit = content.split("\\)");
+        tag = bsplit[1].split("\\s")[1];
+        if (tag.equals("ENTER") || tag.equals("EXIT")){}
+        else tag = "";
+
+        duration = bsplit[1].split("\\s")[2];
+        if (duration.contains("after")){
+            duration = bsplit[1].split("\\s")[3];
+        }
+        else duration = "";
+
+        if (tag.equals("") && duration.equals("")){
+            info = content.substring(content.indexOf(bsplit[1].split("\\s")[1]), content.length());
+        }else if (tag.equals("")) {
+            info = content.substring(content.indexOf(bsplit[1].split("\\s")[2]), content.length());
+        }
+        else if (duration.equals("")) {
+            info = content.substring(content.indexOf(bsplit[1].split("\\s")[3]), content.length());
+        }else{
+            info = content.substring(content.indexOf(bsplit[1].split("\\s")[4]), content.length());
+        }
+
     }
 
 
     public static void main(String[] args) {
         BufferedReader br = null;
         try {
-            br = new BufferedReader(new FileReader("sources/server.log.2017-05-17-10"));
+            br = new BufferedReader(new FileReader("sources/ula"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -74,8 +105,6 @@ public class MainTest {
             }
             String everything = sb.toString();
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SerDeException e) {
             e.printStackTrace();
         } finally {
             try {
